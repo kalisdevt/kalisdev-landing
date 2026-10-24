@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/*
+ * Токены темы. Одна холодная нейтральная шкала + один акцент
+ * (зелёный, производный от цвета Vue). Тема берётся из системы,
+ * ручной переключатель пишет data-theme на <html>.
+ *
+ * Скругления: карточки 20px, кнопки и чипы полностью круглые (pill),
+ * поля и мелкие плашки 10px. Других радиусов на странице нет.
+ *
+ * z-index: -10 фон с падающим кодом, 10 навигация, 20 мобильное меню, 30 прогресс-бар.
+ */
+:root {
+  --bg: #f3f4f6;
+  --surface: #fbfbfc;
+  --surface-2: #e9ebee;
+  --fg: #0d0e10;
+  --muted: #565a62;
+  --line: #d9dce1;
+  --accent: #0a7a50;
+  --accent-fg: #f4fbf7;
+  --accent-soft: #d5ede2;
+  --code-key: #0a7a50;
+  --shadow: 220 15% 30%;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0c0e;
+    --surface: #131418;
+    --surface-2: #1b1d22;
+    --fg: #ececee;
+    --muted: #9a9ea6;
+    --line: #26282e;
+    --accent: #45d18f;
+    --accent-fg: #06110b;
+    --accent-soft: #12271d;
+    --code-key: #45d18f;
+    --shadow: 220 30% 2%;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0c0e;
+  --surface: #131418;
+  --surface-2: #1b1d22;
+  --fg: #ececee;
+  --muted: #9a9ea6;
+  --line: #26282e;
+  --accent: #45d18f;
+  --accent-fg: #06110b;
+  --accent-soft: #12271d;
+  --code-key: #45d18f;
+  --shadow: 220 30% 2%;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Точечная сетка для фона отдельных плиток */
+.dot-grid {
+  background-image: radial-gradient(color-mix(in oklab, var(--fg) 14%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.soft-shadow {
+  box-shadow:
+    0 1px 0 hsl(var(--shadow) / 0.04),
+    0 24px 60px -32px hsl(var(--shadow) / 0.35);
+}
+
+/*
+ * Hero: панель с именем заходит на фото на --overlap.
+ * Псевдоэлементы рисуют вогнутые скругления в местах стыка с фото,
+ * радиус совпадает с радиусом карточек (20px).
+ */
+.hero-panel {
+  --overlap: clamp(7.5rem, 12vw, 9.5rem);
+  --r: 20px;
+  margin-top: calc(var(--overlap) * -1);
+}
+.notch-left::before,
+.notch-right::after {
+  content: "";
+  position: absolute;
+  width: var(--r);
+  height: var(--r);
+  background: radial-gradient(circle at 100% 0, transparent calc(var(--r) - 0.5px), var(--bg) var(--r));
+  pointer-events: none;
+}
+.notch-left::before {
+  left: 0;
+  top: calc(var(--r) * -1);
+}
+.notch-right::after {
+  left: 100%;
+  top: calc(var(--overlap) - var(--r));
+}
+
+/* Бегущая строка сервисов: единственная на странице */
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/*
+ * Пока GSAP не загрузился, элементы hero скрыты, чтобы не было
+ * мигания. Класс motion-ok ставит inline-скрипт только если система
+ * не просит уменьшить анимацию. Если JS по какой-то причине не
+ * загрузился, через 2.5 с элементы проявятся сами.
+ */
+@keyframes reveal-fallback {
+  to {
+    visibility: visible;
+  }
+}
+.motion-ok [data-hero-line],
+.motion-ok [data-hero-fade],
+.motion-ok [data-hero-photo] {
+  visibility: hidden;
+  animation: reveal-fallback 0s 2.5s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .marquee-track {
+    animation: none;
+  }
+}
