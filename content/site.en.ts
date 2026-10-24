@@ -15,8 +15,8 @@ export const siteEn: SiteContent = {
   numberLocale: "en-US",
   ogLocale: "en_US",
 
-  name: "Dmitry Tynkov",
-  firstName: "Dmitry",
+  name: "Dmitriy Tynkov",
+  firstName: "Dmitriy",
   lastName: "Tynkov",
   alias: shared.alias,
   monogram: "DT",
@@ -25,12 +25,12 @@ export const siteEn: SiteContent = {
   country: "Russia",
 
   photos: shared.photos,
-  photoAlt: "Dmitry Tynkov, fullstack developer",
+  photoAlt: "Dmitriy Tynkov, fullstack developer",
   avatar: shared.avatar,
   contacts: shared.contacts,
 
   meta: {
-    title: "Dmitry Tynkov (kalisdev), Fullstack developer",
+    title: "Dmitriy Tynkov (kalisdev), Fullstack developer",
     description:
       "Fullstack developer working with Vue.js and Node.js. Built and ran an education CRM/LMS platform solo: Node.js and MongoDB backend, Vue interfaces, payments and third-party API integrations.",
   },
