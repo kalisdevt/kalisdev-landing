@@ -1,4 +1,5 @@
-import { signature, SIGNATURE_UPM, type SignatureLine } from "./signature-data";
+import type { Locale } from "@/content/types";
+import { signatures, SIGNATURE_UPM, type SignatureLine } from "./signature-data";
 
 /*
  * Рукописная подпись из настоящих контуров букв Great Vibes
@@ -17,14 +18,14 @@ const WEIGHT = 18;
 /** Запас по краям, чтобы росчерки и обводка не упирались в границу. */
 const PAD = 40;
 
-// Общая высота для обеих строк, чтобы базовые линии совпадали по смещению
-const TOP = Math.min(signature.first.ink[1], signature.last.ink[1]) - PAD;
-const BOTTOM = Math.max(signature.first.ink[3], signature.last.ink[3]) + PAD;
+// Общая высота для всех строк обоих языков: базовые линии совпадают
+// по смещению, и раскладка подписи одинакова в русской и английской версии
+const allLines = Object.values(signatures).flatMap((s) => [s.first, s.last]);
+const TOP = Math.min(...allLines.map((l) => l.ink[1])) - PAD;
+const BOTTOM = Math.max(...allLines.map((l) => l.ink[3])) + PAD;
 
-/** Расстояние от верха строки подписи до базовой линии, в em. */
-export const SIGNATURE_BASELINE_EM = -TOP / SIGNATURE_UPM;
 /** Высота строки подписи, в em. */
-export const SIGNATURE_HEIGHT_EM = (BOTTOM - TOP) / SIGNATURE_UPM;
+const SIGNATURE_HEIGHT_EM = (BOTTOM - TOP) / SIGNATURE_UPM;
 
 /** Расстояние между базовыми линиями имени и фамилии, в em: меньше высоты строки, поэтому фамилия заходит на имя. */
 const LINE_GAP_EM = 0.68;
@@ -36,11 +37,13 @@ function Line({
   id,
   className,
   style,
+  animated,
 }: {
   line: SignatureLine;
   id: string;
   className?: string;
   style?: React.CSSProperties;
+  animated: boolean;
 }) {
   const x = Math.min(line.ink[0], 0) - PAD;
   const w = line.ink[2] + PAD - x;
@@ -48,8 +51,9 @@ function Line({
 
   return (
     <svg
-      data-hero-line
-      data-signature
+      // Метки для ScrollEffects; без них подпись статична и видна сразу
+      data-hero-line={animated || undefined}
+      data-signature={animated || undefined}
       aria-hidden
       viewBox={`${x} ${TOP} ${w} ${h}`}
       className={`block overflow-visible ${className ?? ""}`}
@@ -90,14 +94,25 @@ function Line({
   );
 }
 
-export function Signature({ lastNameClassName }: { lastNameClassName?: string }) {
+export function Signature({
+  locale,
+  lastNameClassName,
+  animated = true,
+}: {
+  locale: Locale;
+  lastNameClassName?: string;
+  /** false: без анимации письма (например, на странице 404). */
+  animated?: boolean;
+}) {
+  const signature = signatures[locale];
   return (
     <>
-      <Line line={signature.first} id="sig-first" />
+      <Line line={signature.first} id="sig-first" animated={animated} />
       <Line
         line={signature.last}
         id="sig-last"
         className={lastNameClassName}
+        animated={animated}
         style={{ marginTop: `${-(SIGNATURE_HEIGHT_EM - LINE_GAP_EM)}em`, marginLeft: `${INDENT_EM}em` }}
       />
     </>

@@ -130,12 +130,15 @@ export function ScrollEffects() {
           },
         );
 
+        // Формат чисел по языку страницы: 1,5 в русской версии, 1.5 в английской
+        const numberLocale = document.documentElement.lang === "en" ? "en-US" : "ru-RU";
+
         // Счётчики в цифрах
         gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
           const target = Number(el.dataset.count);
           const decimals = Number(el.dataset.decimals ?? 0);
           const fmt = (v: number) =>
-            v.toLocaleString("ru-RU", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+            v.toLocaleString(numberLocale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
           const state = { v: 0 };
           el.textContent = fmt(0);
           gsap.to(state, {

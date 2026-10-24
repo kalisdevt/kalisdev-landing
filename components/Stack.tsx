@@ -37,7 +37,7 @@ import {
   PlugsConnected,
   Stack as StackIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { site } from "@/content/site";
+import type { Site } from "@/content/site";
 
 // Логотипы из Simple Icons. Для того, чего там нет, берём иконку Phosphor.
 const logos: Record<string, SimpleIcon | React.ReactNode> = {
@@ -74,8 +74,11 @@ const logos: Record<string, SimpleIcon | React.ReactNode> = {
   "Depth Anything": <CubeFocus size={22} aria-hidden />,
   "Context Engineering": <ChatCenteredText size={22} aria-hidden />,
   Математика: <MathOperations size={22} aria-hidden />,
+  Mathematics: <MathOperations size={22} aria-hidden />,
   "Линейная алгебра": <GridFour size={22} aria-hidden />,
+  "Linear algebra": <GridFour size={22} aria-hidden />,
   Статистика: <ChartBar size={22} aria-hidden />,
+  Statistics: <ChartBar size={22} aria-hidden />,
   NumPy: siNumpy,
 };
 
@@ -92,11 +95,11 @@ function Logo({ name }: { name: string }) {
   return <>{(logo as React.ReactNode) ?? <StackIcon size={22} aria-hidden />}</>;
 }
 
-export function Stack() {
+export function Stack({ site }: { site: Site }) {
   return (
     <section id="stack" aria-labelledby="stack-title" className="mx-auto max-w-[1320px] px-4 py-24 md:px-8 md:py-32">
       <h2 id="stack-title" className="text-4xl font-semibold tracking-[-0.035em] md:text-6xl">
-        Стек
+        {site.ui.stackTitle}
       </h2>
 
       {/* Группы разной длины, поэтому колонки, а не сетка: без пустых дыр */}

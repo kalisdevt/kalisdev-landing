@@ -5,7 +5,13 @@ import { Check, Copy, WarningCircle } from "@phosphor-icons/react";
 
 type State = "idle" | "copied" | "error";
 
-export function CopyEmail({ email }: { email: string }) {
+export function CopyEmail({
+  email,
+  labels,
+}: {
+  email: string;
+  labels: { copy: string; copied: string; copyError: string };
+}) {
   const [state, setState] = useState<State>("idle");
 
   useEffect(() => {
@@ -44,7 +50,7 @@ export function CopyEmail({ email }: { email: string }) {
           <Copy size={16} aria-hidden />
         )}
         <span aria-live="polite">
-          {state === "copied" ? "Скопировано" : state === "error" ? "Не удалось, выделите вручную" : "Копировать"}
+          {state === "copied" ? labels.copied : state === "error" ? labels.copyError : labels.copy}
         </span>
       </button>
     </div>

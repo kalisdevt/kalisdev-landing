@@ -2,7 +2,7 @@
  * Генерирует контуры рукописной подписи (имя и фамилия) из шрифта
  * Great Vibes в components/signature-data.ts.
  *
- * Запуск после изменения имени в content/site.ts:
+ * Запуск после изменения имени в content/site.ts или content/site.en.ts:
  *   npm run signature
  *
  * Зачем: у рукописных букв росчерки выходят далеко за габариты символа
@@ -16,13 +16,13 @@ import { dirname, join } from "node:path";
 import opentype from "opentype.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const font = opentype.loadSync(join(root, "scripts/fonts/GreatVibes-Regular.ttf"));
+const font = opentype.loadSync(join(root, "assets/fonts/GreatVibes-Regular.ttf"));
 const upm = font.unitsPerEm;
 
-const site = readFileSync(join(root, "content/site.ts"), "utf8");
-const pick = (key) => {
-  const m = site.match(new RegExp(`${key}:\\s*"([^"]+)"`));
-  if (!m) throw new Error(`Не нашёл ${key} в content/site.ts`);
+const pick = (file, key) => {
+  const src = readFileSync(join(root, file), "utf8");
+  const m = src.match(new RegExp(`${key}:\\s*"([^"]+)"`));
+  if (!m) throw new Error(`Не нашёл ${key} в ${file}`);
   return m[1];
 };
 
@@ -99,8 +99,13 @@ function buildLine(text) {
   return { text, glyphs: glyphs.map(({ d, pen }) => ({ d, pen })), ink: [r(x1), r(y1), r(x2), r(y2)] };
 }
 
-const first = buildLine(pick("firstName"));
-const last = buildLine(pick("lastName"));
+const files = { ru: "content/site.ts", en: "content/site.en.ts" };
+const signatures = Object.fromEntries(
+  Object.entries(files).map(([locale, file]) => [
+    locale,
+    { first: buildLine(pick(file, "firstName")), last: buildLine(pick(file, "lastName")) },
+  ]),
+);
 
 const out = `// Сгенерировано scripts/build-signature.mjs из шрифта Great Vibes (OFL).
 // Не редактировать вручную: после смены имени запустите npm run signature.
@@ -114,13 +119,10 @@ export type SignatureLine = {
   glyphs: { d: string; pen: string[] }[];
 };
 
-export const signature: { first: SignatureLine; last: SignatureLine } = ${JSON.stringify({ first, last }, null, 2)};
+export const signatures: Record<"ru" | "en", { first: SignatureLine; last: SignatureLine }> = ${JSON.stringify(signatures, null, 2)};
 `;
 
 writeFileSync(join(root, "components/signature-data.ts"), out);
-console.log(
-  `signature: ${first.text} (${first.glyphs.length} букв), ${last.text} (${last.glyphs.length} букв)`,
-  "ink",
-  first.ink,
-  last.ink,
-);
+for (const [locale, { first, last }] of Object.entries(signatures)) {
+  console.log(`${locale}: ${first.text} ${last.text}`, "ink", first.ink, last.ink);
+}

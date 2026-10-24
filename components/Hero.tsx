@@ -1,6 +1,6 @@
 import { getImageProps } from "next/image";
 import { ArrowDown, TelegramLogo } from "@phosphor-icons/react/dist/ssr";
-import { site, type Photo as PhotoSource } from "@/content/site";
+import type { Photo as PhotoSource, Site } from "@/content/site";
 import { Signature } from "./Signature";
 
 /*
@@ -13,7 +13,7 @@ import { Signature } from "./Signature";
 const DEFAULT_POSITION = "50% 30%";
 
 // Если какого-то кадра нет, берём ближайший по форме из оставшихся
-function resolvePhotos() {
+function resolvePhotos(site: Site) {
   const { mobile, tablet, desktop } = site.photos;
   const m = mobile ?? tablet ?? desktop;
   if (!m) return null;
@@ -33,7 +33,7 @@ function srcSetFor(photo: PhotoSource, sizes: string) {
  * подходящий. Точка кадрирования у каждого своя, через CSS-переменные.
  * Границы совпадают с брейкпоинтами Tailwind: md (768) и xl (1280).
  */
-function ArtDirectedPhoto({ photos }: { photos: NonNullable<ReturnType<typeof resolvePhotos>> }) {
+function ArtDirectedPhoto({ photos, alt }: { photos: NonNullable<ReturnType<typeof resolvePhotos>>; alt: string }) {
   const desktop = srcSetFor(photos.desktop, "(min-width: 1320px) 1256px, 100vw");
   const tablet = srcSetFor(photos.tablet, "100vw");
   const { srcSet: mobileSrcSet, sizes: mobileSizes, ...img } = srcSetFor(photos.mobile, "100vw");
@@ -55,7 +55,7 @@ function ArtDirectedPhoto({ photos }: { photos: NonNullable<ReturnType<typeof re
         {...img}
         srcSet={mobileSrcSet}
         sizes={mobileSizes}
-        alt={site.photoAlt}
+        alt={alt}
         loading="eager"
         fetchPriority="high"
         className="object-cover [object-position:var(--pos-m)] md:[object-position:var(--pos-t)] xl:[object-position:var(--pos-d)]"
@@ -64,8 +64,8 @@ function ArtDirectedPhoto({ photos }: { photos: NonNullable<ReturnType<typeof re
   );
 }
 
-function Photo() {
-  const photos = resolvePhotos();
+function Photo({ site }: { site: Site }) {
+  const photos = resolvePhotos(site);
   return (
     <div
       data-hero-photo
@@ -73,7 +73,7 @@ function Photo() {
     >
       <div data-parallax className="absolute inset-[-6%_0]">
         {photos ? (
-          <ArtDirectedPhoto photos={photos} />
+          <ArtDirectedPhoto photos={photos} alt={site.photoAlt} />
         ) : (
           // Заглушка, пока фото не добавлены. Пути к фото задаются в content/site.ts.
           <div
@@ -82,7 +82,7 @@ function Photo() {
             aria-label={site.photoAlt}
           >
             <span className="select-none text-[clamp(6rem,18vw,16rem)] font-semibold leading-none tracking-tighter text-accent/80">
-              ДТ
+              {site.monogram}
             </span>
           </div>
         )}
@@ -91,10 +91,10 @@ function Photo() {
   );
 }
 
-export function Hero() {
+export function Hero({ site }: { site: Site }) {
   return (
     <section id="top" className="relative mx-auto max-w-[1320px] px-4 pb-16 pt-20 md:px-8 lg:min-h-[100dvh] lg:pb-10">
-      <Photo />
+      <Photo site={site} />
 
       {/* Панель с именем, заходит на фото на величину --overlap */}
       <div className="hero-panel notch-left notch-right relative w-fit max-w-full rounded-tr-[20px] bg-bg pr-5 pt-5 md:pr-10 md:pt-7">
@@ -117,7 +117,7 @@ export function Hero() {
         */}
         <h1 className="mt-2 text-[clamp(3.8rem,8vw,7rem)] leading-none md:mt-3">
           <span className="sr-only">{site.name}</span>
-          <Signature lastNameClassName="text-accent" />
+          <Signature locale={site.locale} lastNameClassName="text-accent" />
         </h1>
       </div>
 
@@ -134,13 +134,13 @@ export function Hero() {
             className="inline-flex h-13 items-center gap-2.5 whitespace-nowrap rounded-full bg-accent px-7 text-base font-medium text-accent-fg transition-transform duration-200 hover:-translate-y-[1px] active:scale-[0.98]"
           >
             <TelegramLogo size={20} weight="fill" aria-hidden />
-            Написать
+            {site.ui.write}
           </a>
           <a
             href="#experience"
             className="inline-flex h-13 items-center gap-2.5 whitespace-nowrap rounded-full border border-line px-7 text-base font-medium text-fg transition-colors duration-200 hover:bg-surface-2 active:scale-[0.98]"
           >
-            Смотреть опыт
+            {site.ui.seeExperience}
             <ArrowDown size={18} aria-hidden />
           </a>
         </div>

@@ -1,8 +1,8 @@
 import { TelegramLogo, Phone, GithubLogo, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
-import { site } from "@/content/site";
+import type { Site } from "@/content/site";
 import { CopyEmail } from "./CopyEmail";
 
-export function Contact() {
+export function Contact({ site }: { site: Site }) {
   const { telegram, email, phone, github } = site.contacts;
 
   return (
@@ -24,14 +24,14 @@ export function Contact() {
             className="inline-flex h-14 w-fit items-center gap-3 whitespace-nowrap rounded-full bg-accent px-8 text-lg font-medium text-accent-fg transition-transform duration-200 hover:-translate-y-[1px] active:scale-[0.98]"
           >
             <TelegramLogo size={22} weight="fill" aria-hidden />
-            Написать
+            {site.ui.write}
           </a>
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-muted">или на почту</p>
-            <CopyEmail email={email} />
+            <p className="text-sm text-muted">{site.ui.contactEmail}</p>
+            <CopyEmail email={email} labels={{ copy: site.ui.copy, copied: site.ui.copied, copyError: site.ui.copyError }} />
           </div>
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-muted">код на GitHub</p>
+            <p className="text-sm text-muted">{site.ui.contactGithub}</p>
             <a
               href={`https://github.com/${github}`}
               target="_blank"
@@ -57,7 +57,7 @@ export function Contact() {
           © {new Date().getFullYear()} {site.name} <span className="font-mono">({site.alias})</span>
         </p>
         <p>
-          {site.city}, Россия. Telegram{" "}
+          {site.city}, {site.country}. Telegram{" "}
           <a href={`https://t.me/${telegram}`} className="text-fg underline-offset-4 hover:underline">
             @{telegram}
           </a>

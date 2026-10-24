@@ -5,9 +5,8 @@ import {
   ChartLineUp,
   CreditCard,
 } from "@phosphor-icons/react/dist/ssr";
-import { site } from "@/content/site";
+import type { Site } from "@/content/site";
 
-const c = site.caseStudy.cells;
 
 // Иллюстрация в духе реального кода проекта: схема реферала на Mongoose.
 const codeLines: { t: string; k?: boolean }[][] = [
@@ -46,7 +45,8 @@ function Cell({
   );
 }
 
-export function CaseStudy() {
+export function CaseStudy({ site }: { site: Site }) {
+  const c = site.caseStudy.cells;
   const services = site.caseStudy.services;
 
   return (
@@ -74,7 +74,7 @@ export function CaseStudy() {
           </div>
           <div className="mt-auto border-t border-line bg-surface-2 px-6 py-6 md:px-8">
             <pre
-              aria-label="Пример схемы данных на Mongoose"
+              aria-label={site.ui.codeAria}
               className="overflow-x-auto font-mono text-[13px] leading-[1.75] text-muted md:text-sm"
             >
               <code>
@@ -130,12 +130,12 @@ export function CaseStudy() {
               <h3 className="text-xl font-semibold tracking-tight md:text-2xl">{c.integrations.title}</h3>
               <p className="mt-2 max-w-[34rem] leading-relaxed text-muted">{c.integrations.text}</p>
             </div>
-            <p className="font-mono text-sm text-muted">{services.length} сервисов</p>
+            <p className="font-mono text-sm text-muted">{site.ui.servicesCount.replace("{n}", String(services.length))}</p>
           </div>
 
           {/* Бегущая строка: единственная на странице, пауза при наведении */}
           <div className="marquee relative border-t border-line py-8 md:py-10 [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
-            <ul aria-label="Подключённые сервисы" className="sr-only">
+            <ul aria-label={site.ui.servicesAria} className="sr-only">
               {services.map((s) => (
                 <li key={s.name}>{s.name}</li>
               ))}

@@ -11,7 +11,7 @@ function resolveTheme(): Theme {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-export function ThemeToggle() {
+export function ThemeToggle({ labels }: { labels: { toLight: string; toDark: string } }) {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => setTheme(resolveTheme()), []);
@@ -27,7 +27,7 @@ export function ThemeToggle() {
     setTheme(next);
   };
 
-  const label = theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему";
+  const label = theme === "dark" ? labels.toLight : labels.toDark;
 
   return (
     <button

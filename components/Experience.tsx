@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
-import { site, type Logo } from "@/content/site";
+import type { Logo, Site } from "@/content/site";
 
 function CompanyLogo({ logo, name }: { logo: Logo; name: string }) {
   // Высота логотипа фиксированная, ширина по пропорциям файла
@@ -37,17 +37,17 @@ function CompanyLogo({ logo, name }: { logo: Logo; name: string }) {
   );
 }
 
-export function Experience() {
+export function Experience({ site }: { site: Site }) {
   return (
     <section id="experience" aria-labelledby="experience-title" className="mx-auto max-w-[1320px] px-4 py-24 md:px-8 md:py-32">
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
             <h2 id="experience-title" className="text-4xl font-semibold tracking-[-0.035em] md:text-6xl">
-              Опыт
+              {site.ui.experienceTitle}
             </h2>
             <p className="mt-5 max-w-[22rem] text-lg leading-relaxed text-muted">
-              Полтора года коммерческой разработки, большую часть в роли единственного инженера на продукте.
+              {site.experienceLead}
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export function Experience() {
                 <p className="font-mono text-sm text-muted">{job.period}</p>
                 {job.current && (
                   <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent">
-                    Сейчас
+                    {site.ui.now}
                   </span>
                 )}
               </div>
@@ -109,7 +109,7 @@ export function Experience() {
               )}
 
               {job.tags.length > 0 && (
-                <ul className="mt-6 flex flex-wrap gap-2" aria-label="Технологии">
+                <ul className="mt-6 flex flex-wrap gap-2" aria-label={site.ui.techAria}>
                   {job.tags.map((t) => (
                     <li key={t} className="rounded-full border border-line px-3 py-1 font-mono text-[13px] text-muted">
                       {t}
@@ -123,7 +123,7 @@ export function Experience() {
                   href="#case"
                   className="mt-6 inline-flex items-center gap-2 text-[15px] font-medium text-accent underline-offset-4 hover:underline"
                 >
-                  Подробнее в кейсе
+                  {site.ui.caseMore}
                   <ArrowDown size={16} aria-hidden />
                 </a>
               )}

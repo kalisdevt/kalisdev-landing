@@ -1,12 +1,12 @@
-import { site } from "@/content/site";
+import type { Site } from "@/content/site";
 
-function format(value: number, decimals: number) {
-  return value.toLocaleString("ru-RU", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+function format(value: number, decimals: number, locale: string) {
+  return value.toLocaleString(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-export function Facts() {
+export function Facts({ site }: { site: Site }) {
   return (
-    <section aria-label="Коротко в цифрах" className="mx-auto max-w-[1320px] px-4 md:px-8">
+    <section aria-label={site.ui.factsAria} className="mx-auto max-w-[1320px] px-4 md:px-8">
       <dl className="grid grid-cols-2 gap-y-10 border-y border-line py-12 md:py-14 lg:grid-cols-4">
         {site.facts.map((f, i) => (
           <div
@@ -23,7 +23,7 @@ export function Facts() {
                 data-decimals={f.decimals}
                 className="text-5xl font-semibold tracking-[-0.04em] tabular-nums md:text-6xl"
               >
-                {format(f.value, f.decimals)}
+                {format(f.value, f.decimals, site.numberLocale)}
               </span>
               <span className="text-lg text-muted">{f.unit}</span>
             </dd>
