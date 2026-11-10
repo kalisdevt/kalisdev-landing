@@ -5,6 +5,23 @@ import { Check, Copy, WarningCircle } from "@phosphor-icons/react";
 
 type State = "idle" | "copied" | "error";
 
+function copyViaSelection(text: string) {
+  const field = document.createElement("textarea");
+  field.value = text;
+  field.setAttribute("readonly", "");
+  field.style.cssText = "position:fixed;opacity:0;pointer-events:none";
+  document.body.appendChild(field);
+  field.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  field.remove();
+  return ok;
+}
+
 export function CopyEmail({
   email,
   labels,
@@ -25,7 +42,8 @@ export function CopyEmail({
       await navigator.clipboard.writeText(email);
       setState("copied");
     } catch {
-      setState("error");
+      // Clipboard API недоступен (старый браузер, встроенный просмотрщик): запасной способ
+      setState(copyViaSelection(email) ? "copied" : "error");
     }
   };
 
@@ -33,14 +51,14 @@ export function CopyEmail({
     <div className="flex flex-wrap items-center gap-2">
       <a
         href={`mailto:${email}`}
-        className="text-lg font-medium underline decoration-line decoration-2 underline-offset-[6px] transition-colors hover:decoration-accent md:text-xl"
+        className="break-all text-lg font-medium underline decoration-line decoration-2 underline-offset-[6px] transition-colors hover:decoration-accent md:text-xl"
       >
         {email}
       </a>
       <button
         type="button"
         onClick={copy}
-        className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-4 text-sm text-muted transition-colors duration-200 hover:bg-surface-2 hover:text-fg active:scale-[0.97]"
+        className="btn btn-outline h-11 gap-2 px-4 text-sm font-normal text-muted hover:text-fg"
       >
         {state === "copied" ? (
           <Check size={16} weight="bold" className="text-accent" aria-hidden />

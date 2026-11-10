@@ -5,7 +5,7 @@ export function About({ site }: { site: Site }) {
 
   return (
     <section id="about" aria-labelledby="about-title" data-about className="relative">
-      <div className="mx-auto flex max-w-[1320px] flex-col justify-center px-4 py-24 md:px-8 md:py-32 lg:min-h-[100dvh] lg:py-16">
+      <div className="container-page flex flex-col justify-center py-20 md:py-28 lg:min-h-[100dvh] lg:py-16">
         <h2 id="about-title" className="sr-only">
           {site.ui.aboutTitle}
         </h2>

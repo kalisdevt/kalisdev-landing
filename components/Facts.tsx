@@ -6,7 +6,7 @@ function format(value: number, decimals: number, locale: string) {
 
 export function Facts({ site }: { site: Site }) {
   return (
-    <section aria-label={site.ui.factsAria} className="mx-auto max-w-[1320px] px-4 md:px-8">
+    <section aria-label={site.ui.factsAria} className="container-page">
       <dl className="grid grid-cols-2 gap-y-10 border-y border-line py-12 md:py-14 lg:grid-cols-4">
         {site.facts.map((f, i) => (
           <div

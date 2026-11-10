@@ -20,13 +20,13 @@ export const metadata: Metadata = {
 
 export default function GlobalNotFound() {
   return (
-    <html lang="ru" className={fontVariables} suppressHydrationWarning>
+    <html lang="ru" className={fontVariables} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body className="min-h-[100dvh] bg-bg font-sans text-fg">
         <CodeRain />
-        <main className="mx-auto flex min-h-[100dvh] max-w-[1320px] flex-col justify-center px-4 py-16 md:px-8">
+        <main className="container-page flex min-h-[100dvh] flex-col justify-center py-16">
           <a href="/" className="font-mono text-[15px] font-medium text-muted transition-colors hover:text-fg">
             {site.alias}
           </a>
@@ -43,7 +43,7 @@ export default function GlobalNotFound() {
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <a
               href="/"
-              className="inline-flex h-13 items-center gap-2.5 whitespace-nowrap rounded-full bg-accent px-7 text-base font-medium text-accent-fg transition-transform duration-200 hover:-translate-y-[1px] active:scale-[0.98]"
+              className="btn btn-primary"
             >
               <ArrowLeft size={18} aria-hidden />
               На главную
@@ -52,7 +52,7 @@ export default function GlobalNotFound() {
               href="/en"
               lang="en"
               hrefLang="en"
-              className="inline-flex h-13 items-center gap-2.5 whitespace-nowrap rounded-full border border-line px-7 text-base font-medium text-fg transition-colors duration-200 hover:bg-surface-2 active:scale-[0.98]"
+              className="btn btn-outline"
             >
               <Translate size={18} aria-hidden />
               English version

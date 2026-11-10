@@ -38,6 +38,7 @@ import {
   Stack as StackIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Site } from "@/content/site";
+import { SectionHeading } from "./ui";
 
 // Логотипы из Simple Icons. Для того, чего там нет, берём иконку Phosphor.
 const logos: Record<string, SimpleIcon | React.ReactNode> = {
@@ -97,15 +98,13 @@ function Logo({ name }: { name: string }) {
 
 export function Stack({ site }: { site: Site }) {
   return (
-    <section id="stack" aria-labelledby="stack-title" className="mx-auto max-w-[1320px] px-4 py-24 md:px-8 md:py-32">
-      <h2 id="stack-title" className="text-4xl font-semibold tracking-[-0.035em] md:text-6xl">
-        {site.ui.stackTitle}
-      </h2>
+    <section id="stack" aria-labelledby="stack-title" className="section">
+      <SectionHeading id="stack-title" index="04" title={site.ui.stackTitle} />
 
       {/* Группы разной длины, поэтому колонки, а не сетка: без пустых дыр */}
       <div className="mt-14 gap-10 md:columns-2 lg:columns-3">
         {site.stack.map((group) => (
-          <div key={group.group} className="mb-12 break-inside-avoid">
+          <div key={group.group} className="mb-12 break-inside-avoid last:mb-0 md:last:mb-12">
             <h3 className="border-b border-line pb-4 font-mono text-sm text-muted">{group.group}</h3>
             <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-2">
               {group.items.map((item) => (

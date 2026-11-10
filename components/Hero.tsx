@@ -69,7 +69,10 @@ function Photo({ site }: { site: Site }) {
   return (
     <div
       data-hero-photo
-      className="relative h-[clamp(340px,62vh,520px)] overflow-hidden rounded-[20px] bg-surface-2 md:h-[clamp(340px,calc(100dvh-23rem),740px)]"
+      // Без фото заглушке на телефоне хватает меньшей высоты: кнопки остаются на первом экране
+      className={`relative overflow-hidden rounded-[20px] bg-surface-2 md:h-[clamp(340px,calc(100dvh-23rem),740px)] ${
+        photos ? "h-[clamp(340px,62svh,520px)]" : "h-[clamp(280px,44svh,440px)]"
+      }`}
     >
       <div data-parallax className="absolute inset-[-6%_0]">
         {photos ? (
@@ -93,7 +96,7 @@ function Photo({ site }: { site: Site }) {
 
 export function Hero({ site }: { site: Site }) {
   return (
-    <section id="top" className="relative mx-auto max-w-[1320px] px-4 pb-16 pt-20 md:px-8 lg:min-h-[100dvh] lg:pb-10">
+    <section id="top" className="container-page relative pb-16 pt-20 lg:min-h-[100dvh] lg:pb-10">
       <Photo site={site} />
 
       {/* Панель с именем, заходит на фото на величину --overlap */}
@@ -131,17 +134,17 @@ export function Hero({ site }: { site: Site }) {
             href={`https://t.me/${site.contacts.telegram}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-13 items-center gap-2.5 whitespace-nowrap rounded-full bg-accent px-7 text-base font-medium text-accent-fg transition-transform duration-200 hover:-translate-y-[1px] active:scale-[0.98]"
+            className="btn btn-primary"
           >
             <TelegramLogo size={20} weight="fill" aria-hidden />
             {site.ui.write}
           </a>
           <a
             href="#experience"
-            className="inline-flex h-13 items-center gap-2.5 whitespace-nowrap rounded-full border border-line px-7 text-base font-medium text-fg transition-colors duration-200 hover:bg-surface-2 active:scale-[0.98]"
+            className="btn btn-outline group"
           >
             {site.ui.seeExperience}
-            <ArrowDown size={18} aria-hidden />
+            <ArrowDown size={18} aria-hidden className="transition-transform duration-200 group-hover:translate-y-0.5" />
           </a>
         </div>
       </div>

@@ -8,7 +8,12 @@
  * Скругления: карточки 20px, кнопки и чипы полностью круглые (pill),
  * поля и мелкие плашки 10px. Других радиусов на странице нет.
  *
- * z-index: -10 фон с падающим кодом, 10 навигация, 20 мобильное меню, 30 прогресс-бар.
+ * z-index: -10 фон с падающим кодом, 10 навигация (меню и прогресс-бар
+ * живут внутри неё), 30 ссылка «к содержимому».
+ *
+ * Повторяющиеся элементы (кнопки, чипы, карточки, заголовки секций)
+ * описаны один раз в @layer components ниже; утилиты Tailwind в разметке
+ * их уточняют (например, btn h-14).
  */
 :root {
   --bg: #f3f4f6;
@@ -73,8 +78,12 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 5.5rem;
+  /* Полоса прокрутки не сдвигает вёрстку, когда меню блокирует прокрутку */
+  scrollbar-gutter: stable;
+  scrollbar-color: var(--line) transparent;
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -83,6 +92,17 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p,
+li {
+  text-wrap: pretty;
 }
 
 ::selection {
@@ -93,7 +113,74 @@ body {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 6px;
+}
+
+@layer components {
+  /* Ширина страницы и вертикальный ритм секций */
+  .container-page {
+    @apply mx-auto max-w-[1320px] px-4 md:px-8;
+  }
+  .section {
+    @apply mx-auto max-w-[1320px] px-4 py-20 md:px-8 md:py-28;
+  }
+
+  .section-title {
+    @apply text-4xl font-semibold tracking-[-0.035em] md:text-6xl;
+  }
+  .section-lead {
+    @apply mt-5 max-w-[40rem] text-lg leading-relaxed text-muted;
+  }
+
+  /* Кнопки: одна форма, три заливки */
+  .btn {
+    @apply inline-flex h-13 items-center justify-center gap-2.5 whitespace-nowrap rounded-full px-7 text-base font-medium transition duration-200 active:scale-[0.98];
+  }
+  .btn-primary {
+    @apply bg-accent text-accent-fg hover:-translate-y-px;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 10px 30px -12px var(--accent);
+  }
+  .btn-solid {
+    @apply bg-fg text-bg hover:-translate-y-px;
+  }
+  .btn-outline {
+    @apply border border-line text-fg hover:border-muted/50 hover:bg-surface-2;
+  }
+  .icon-btn {
+    @apply grid size-11 shrink-0 place-items-center rounded-full border border-line text-fg transition duration-200 hover:border-muted/50 hover:bg-surface-2 active:scale-[0.96];
+  }
+
+  .chip {
+    @apply rounded-full border border-line px-3 py-1 font-mono text-[13px] text-muted;
+  }
+
+  .card {
+    @apply rounded-[20px] border border-line;
+  }
+  /* Карточка, которая отзывается на наведение */
+  .card-hover {
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
+  }
+  @media (hover: hover) {
+    .card-hover:hover {
+      border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+      box-shadow: 0 24px 60px -36px hsl(var(--shadow) / 0.5);
+    }
+  }
+
+  /* Текстовая ссылка со стрелкой */
+  .link-arrow {
+    @apply inline-flex min-h-11 items-center gap-1.5 text-[15px] font-medium text-accent underline-offset-4 hover:underline;
+  }
+  .link-arrow > svg {
+    @apply transition-transform duration-200;
+  }
+  .link-arrow:hover > svg.arrow-out {
+    @apply -translate-y-0.5 translate-x-0.5;
+  }
 }
 
 /* Точечная сетка для фона отдельных плиток */
@@ -166,12 +253,67 @@ body {
   visibility: hidden;
   animation: reveal-fallback 0s 2.5s forwards;
 }
+/* То же для блоков, которые появляются при прокрутке: без этого при
+   перезагрузке посреди страницы они мелькают до старта анимации. */
+.motion-ok [data-reveal],
+.motion-ok [data-bento],
+.motion-ok [data-chip],
+.motion-ok [data-contact] {
+  visibility: hidden;
+  animation: reveal-fallback 0s 3s forwards;
+}
+
+/* Таймлайн опыта: точка закрашивается, когда линия до неё дошла */
+[data-timeline-dot] {
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+.is-passed > [data-timeline-dot] {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+/* Мобильное меню */
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.menu-panel {
+  animation: menu-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.menu-backdrop {
+  animation: fade-in 0.25s ease-out;
+}
+
+/* Смена темы: мягкое перетекание вместо резкого переключения */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .marquee-track {
+    animation: none;
+  }
+  .menu-panel,
+  .menu-backdrop {
+    animation: none;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
     animation: none;
   }
 }

@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import type { Logo, Site } from "@/content/site";
+import { BulletList, MaskIcon, SectionHeading, TagList } from "./ui";
 
 function CompanyLogo({ logo, name }: { logo: Logo; name: string }) {
   // Высота логотипа фиксированная, ширина по пропорциям файла
@@ -10,25 +11,12 @@ function CompanyLogo({ logo, name }: { logo: Logo; name: string }) {
     <span className="inline-flex items-center gap-2.5">
       {logo.mono ? (
         // Одноцветный логотип красится в цвет текста через маску
-        <span
-          aria-hidden
-          className="block bg-fg transition-colors duration-200 group-hover:bg-accent"
-          style={{
-            width: w,
-            height: h,
-            maskImage: `url(${logo.src})`,
-            WebkitMaskImage: `url(${logo.src})`,
-            maskSize: "contain",
-            WebkitMaskSize: "contain",
-            maskRepeat: "no-repeat",
-            WebkitMaskRepeat: "no-repeat",
-          }}
-        />
+        <MaskIcon src={logo.src} width={w} height={h} className="bg-fg transition-colors duration-200 group-hover:bg-accent" />
       ) : (
         <Image src={logo.src} alt="" width={w} height={h} className="block" style={{ width: w, height: h }} />
       )}
       {logo.wordmark && (
-        <span aria-hidden className="text-[1.65rem] font-extrabold leading-none tracking-tight">
+        <span aria-hidden className="text-[1.35rem] font-extrabold leading-none tracking-tight sm:text-[1.65rem]">
           {logo.wordmark}
         </span>
       )}
@@ -39,16 +27,17 @@ function CompanyLogo({ logo, name }: { logo: Logo; name: string }) {
 
 export function Experience({ site }: { site: Site }) {
   return (
-    <section id="experience" aria-labelledby="experience-title" className="mx-auto max-w-[1320px] px-4 py-24 md:px-8 md:py-32">
+    <section id="experience" aria-labelledby="experience-title" className="section">
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
-            <h2 id="experience-title" className="text-4xl font-semibold tracking-[-0.035em] md:text-6xl">
-              {site.ui.experienceTitle}
-            </h2>
-            <p className="mt-5 max-w-[22rem] text-lg leading-relaxed text-muted">
-              {site.experienceLead}
-            </p>
+            <SectionHeading
+              id="experience-title"
+              index="01"
+              title={site.ui.experienceTitle}
+              lead={site.experienceLead}
+              className="lg:max-w-[22rem]"
+            />
           </div>
         </div>
 
@@ -65,6 +54,7 @@ export function Experience({ site }: { site: Site }) {
             <li key={job.company} data-reveal className="relative pb-16 pl-10 last:pb-0 md:pl-14">
               <span
                 aria-hidden
+                data-timeline-dot
                 className={`absolute left-0 top-2 size-[15px] rounded-full border-2 ${
                   job.current ? "border-accent bg-accent" : "border-line bg-bg"
                 }`}
@@ -97,34 +87,13 @@ export function Experience({ site }: { site: Site }) {
               {job.team && <p className="mt-1 max-w-[40rem] text-[15px] leading-snug text-muted">{job.team}</p>}
               <p className="mt-4 max-w-[40rem] leading-relaxed text-muted">{job.summary}</p>
 
-              {job.points.length > 0 && (
-                <ul className="mt-5 grid max-w-[44rem] gap-3">
-                  {job.points.map((p) => (
-                    <li key={p} className="relative pl-5 leading-relaxed text-fg/85">
-                      <span aria-hidden className="absolute left-0 top-[0.7em] h-px w-2.5 bg-muted" />
-                      {p}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <BulletList items={job.points} className="max-w-[44rem]" />
+              <TagList items={job.tags} label={site.ui.techAria} />
 
-              {job.tags.length > 0 && (
-                <ul className="mt-6 flex flex-wrap gap-2" aria-label={site.ui.techAria}>
-                  {job.tags.map((t) => (
-                    <li key={t} className="rounded-full border border-line px-3 py-1 font-mono text-[13px] text-muted">
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {"caseLink" in job && job.caseLink && (
-                <a
-                  href="#case"
-                  className="mt-6 inline-flex items-center gap-2 text-[15px] font-medium text-accent underline-offset-4 hover:underline"
-                >
+              {job.caseLink && (
+                <a href="#case" className="link-arrow group mt-4">
                   {site.ui.caseMore}
-                  <ArrowDown size={16} aria-hidden />
+                  <ArrowDown size={16} aria-hidden className="group-hover:translate-y-0.5" />
                 </a>
               )}
             </li>

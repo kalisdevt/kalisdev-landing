@@ -69,8 +69,18 @@ export function CodeRain() {
       // На узких экранах колонок меньше, чтобы фон оставался спокойным
       const gap = width < 768 ? COLUMN_GAP * 1.4 : COLUMN_GAP;
       const columns = Math.ceil(width / gap);
-      drops = Array.from({ length: columns }, () => newDrop(true));
+      // Уже падающие колонки не трогаем: на телефоне resize приходит при
+      // каждом скрытии адресной строки, и фон не должен от этого дёргаться
+      if (columns < drops.length) drops.length = columns;
+      while (drops.length < columns) drops.push(newDrop(true));
       draw();
+    };
+
+    // Несколько resize подряд (поворот, адресная строка) сводим к одному кадру
+    let resizeRaf = 0;
+    const onResize = () => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(resize);
     };
 
     const draw = () => {
@@ -129,17 +139,18 @@ export function CodeRain() {
     const scheme = window.matchMedia("(prefers-color-scheme: dark)");
     scheme.addEventListener("change", onTheme);
     reduce.addEventListener("change", start);
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", onResize);
 
     resize();
     start();
 
     return () => {
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(resizeRaf);
       themeObserver.disconnect();
       scheme.removeEventListener("change", onTheme);
       reduce.removeEventListener("change", start);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 

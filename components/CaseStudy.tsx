@@ -6,7 +6,7 @@ import {
   CreditCard,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Site } from "@/content/site";
-
+import { MaskIcon, SectionHeading, TagList } from "./ui";
 
 // Иллюстрация в духе реального кода проекта: схема реферала на Mongoose.
 const codeLines: { t: string; k?: boolean }[][] = [
@@ -19,6 +19,8 @@ const codeLines: { t: string; k?: boolean }[][] = [
   [{ t: "" }],
   [{ t: "referralSchema", k: true }, { t: ".post('save', notifyInviter);" }],
 ];
+
+const BACKEND_STACK = ["Node.js", "Express", "MongoDB", "Mongoose", "REST API"];
 
 function Cell({
   className = "",
@@ -34,7 +36,7 @@ function Cell({
   children?: React.ReactNode;
 }) {
   return (
-    <article data-bento className={`relative flex flex-col overflow-hidden rounded-[20px] border border-line p-6 md:p-8 ${className}`}>
+    <article data-bento className={`card card-hover relative flex flex-col overflow-hidden p-6 md:p-8 ${className}`}>
       {icon && <div className="mb-10 text-accent">{icon}</div>}
       <div className="mt-auto">
         <h3 className="text-xl font-semibold tracking-tight md:text-2xl">{title}</h3>
@@ -50,27 +52,18 @@ export function CaseStudy({ site }: { site: Site }) {
   const services = site.caseStudy.services;
 
   return (
-    <section id="case" aria-labelledby="case-title" className="mx-auto max-w-[1320px] px-4 py-24 md:px-8 md:py-32">
-      <h2 id="case-title" className="max-w-[48rem] text-4xl font-semibold tracking-[-0.035em] md:text-6xl">
-        {site.caseStudy.title}
-      </h2>
-      <p className="mt-5 max-w-[40rem] text-lg leading-relaxed text-muted">{site.caseStudy.lead}</p>
+    <section id="case" aria-labelledby="case-title" className="section">
+      <SectionHeading id="case-title" index="02" title={site.caseStudy.title} lead={site.caseStudy.lead} />
 
       <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
         <article
           data-bento
-          className="flex flex-col overflow-hidden rounded-[20px] border border-line bg-surface md:col-span-2 lg:col-span-4 lg:row-span-2"
+          className="card card-hover flex flex-col overflow-hidden bg-surface md:col-span-2 lg:col-span-4 lg:row-span-2"
         >
           <div className="p-6 md:p-8">
             <h3 className="text-xl font-semibold tracking-tight md:text-2xl">{c.backend.title}</h3>
             <p className="mt-2 max-w-[34rem] leading-relaxed text-muted">{c.backend.text}</p>
-            <ul className="mt-5 flex flex-wrap gap-2">
-              {["Node.js", "Express", "MongoDB", "Mongoose", "REST API"].map((t) => (
-                <li key={t} className="rounded-full border border-line px-3 py-1 font-mono text-[13px] text-muted">
-                  {t}
-                </li>
-              ))}
-            </ul>
+            <TagList items={BACKEND_STACK} label={site.ui.techAria} className="mt-5" />
           </div>
           <div className="mt-auto border-t border-line bg-surface-2 px-6 py-6 md:px-8">
             <pre
@@ -122,7 +115,7 @@ export function CaseStudy({ site }: { site: Site }) {
 
         <article
           data-bento
-          className="overflow-hidden rounded-[20px] border border-line bg-surface-2 text-fg md:col-span-2 lg:col-span-6"
+          className="card overflow-hidden bg-surface-2 text-fg md:col-span-2 lg:col-span-6"
         >
           <div className="flex flex-col gap-6 p-6 md:flex-row md:items-end md:justify-between md:p-8">
             <div>
@@ -146,21 +139,12 @@ export function CaseStudy({ site }: { site: Site }) {
                   {services.map((s) => (
                     // Одноцветный логотип: файл служит маской, цвет берётся из цвета текста,
                     // поэтому в тёмной теме логотипы белые, в светлой чёрные
-                    <span
+                    <MaskIcon
                       key={s.name}
-                      className="block shrink-0 bg-current opacity-90"
-                      style={{
-                        width: Math.round((s.width / s.height) * s.h),
-                        height: s.h,
-                        maskImage: `url(${s.src})`,
-                        WebkitMaskImage: `url(${s.src})`,
-                        maskSize: "contain",
-                        WebkitMaskSize: "contain",
-                        maskRepeat: "no-repeat",
-                        WebkitMaskRepeat: "no-repeat",
-                        maskPosition: "center",
-                        WebkitMaskPosition: "center",
-                      }}
+                      src={s.src}
+                      width={Math.round((s.width / s.height) * s.h)}
+                      height={s.h}
+                      className="bg-current opacity-90"
                     />
                   ))}
                 </div>

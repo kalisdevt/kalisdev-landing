@@ -35,6 +35,8 @@ npm run signature  # перегенерировать рукописную по�
 - **Рукописное имя**: векторные контуры шрифта Great Vibes, а не текст, поэтому росчерки не
   обрезаются и имя «пишется от руки». После смены `firstName` или `lastName` запустите `npm run signature`.
 - **Цвета и темы**: токены в начале `app/globals.css`.
+- **Общие элементы**: кнопки, чипы, карточки и отступы секций описаны один раз в `app/globals.css`
+  (`@layer components`: `btn`, `chip`, `card`, `section`), заголовки секций и списки в `components/ui.tsx`.
 - **Анимации**: `components/ScrollEffects.tsx` (подпись, прокрутка) и `components/CodeRain.tsx` (фон).
   При `prefers-reduced-motion` отключаются.
 

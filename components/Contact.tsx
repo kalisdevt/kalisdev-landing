@@ -6,8 +6,8 @@ export function Contact({ site }: { site: Site }) {
   const { telegram, email, phone, github } = site.contacts;
 
   return (
-    <section id="contact" aria-labelledby="contact-title" className="mx-auto max-w-[1320px] px-4 pb-10 pt-24 md:px-8 md:pt-32">
-      <div data-contact className="soft-shadow overflow-hidden rounded-[20px] border border-line bg-surface px-6 py-14 md:px-14 md:py-20">
+    <section id="contact" aria-labelledby="contact-title" className="container-page pb-10 pt-20 md:pt-28">
+      <div data-contact className="card soft-shadow relative overflow-hidden bg-surface px-6 py-14 md:px-14 md:py-20">
         <h2
           id="contact-title"
           className="max-w-[54rem] text-balance text-[clamp(2.4rem,6vw,5.5rem)] font-semibold leading-[1.02] tracking-[-0.045em]"
@@ -16,12 +16,12 @@ export function Contact({ site }: { site: Site }) {
         </h2>
         <p className="mt-6 max-w-[36rem] text-lg leading-relaxed text-muted">{site.contact.text}</p>
 
-        <div className="mt-12 flex flex-col gap-8 md:flex-row md:items-center md:gap-10">
+        <div className="mt-12 flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-10">
           <a
             href={`https://t.me/${telegram}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-14 w-fit items-center gap-3 whitespace-nowrap rounded-full bg-accent px-8 text-lg font-medium text-accent-fg transition-transform duration-200 hover:-translate-y-[1px] active:scale-[0.98]"
+            className="btn btn-primary h-14 w-fit gap-3 px-8 text-lg"
           >
             <TelegramLogo size={22} weight="fill" aria-hidden />
             {site.ui.write}
@@ -58,11 +58,11 @@ export function Contact({ site }: { site: Site }) {
         </p>
         <p>
           {site.city}, {site.country}. Telegram{" "}
-          <a href={`https://t.me/${telegram}`} className="text-fg underline-offset-4 hover:underline">
+          <a href={`https://t.me/${telegram}`} target="_blank" rel="noopener noreferrer" className="text-fg underline-offset-4 hover:underline">
             @{telegram}
           </a>
           , GitHub{" "}
-          <a href={`https://github.com/${github}`} className="text-fg underline-offset-4 hover:underline">
+          <a href={`https://github.com/${github}`} target="_blank" rel="noopener noreferrer" className="text-fg underline-offset-4 hover:underline">
             {github}
           </a>
         </p>

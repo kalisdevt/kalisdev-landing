@@ -17,6 +17,9 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  *  - таймлайн: линия показывает, где вы в истории опыта;
  *  - счётчики, reveal, бенто: подсвечивают новый блок при входе.
  *
+ * Чтобы блоки не мелькали до старта анимаций, их заранее прячет CSS
+ * (класс motion-ok в globals.css).
+ *
  * При prefers-reduced-motion ничего из этого не создаётся,
  * контент сразу в финальном состоянии.
  */
@@ -88,144 +91,132 @@ function writeSignature() {
   return tl;
 }
 
+const MOTION = "(prefers-reduced-motion: no-preference)";
+const DESKTOP = "(min-width: 1024px)";
+
 export function ScrollEffects() {
   useGSAP(() => {
     const mm = gsap.matchMedia();
 
-    mm.add(
-      {
-        motion: "(prefers-reduced-motion: no-preference)",
-        desktop: "(min-width: 1024px)",
-      },
-      (ctx) => {
-        const { motion, desktop } = ctx.conditions as { motion: boolean; desktop: boolean };
-        if (!motion) return;
+    // «Обо мне»: слова проявляются по мере чтения. На широком экране блок
+    // закрепляется (единственный pin), на узком текст проявляется на ходу.
+    // Отдельный контекст: при смене брейкпоинта пересоздаётся только он,
+    // а вход hero и счётчики не проигрываются заново.
+    mm.add({ motion: MOTION, desktop: DESKTOP }, (ctx) => {
+      const { motion, desktop } = ctx.conditions as { motion: boolean; desktop: boolean };
+      const words = gsap.utils.toArray<HTMLElement>("[data-word]");
+      if (!motion || !words.length) return;
 
-        // Hero: вход по порядку
-        const intro = gsap.timeline({ defaults: { ease: "expo.out" } });
-        intro
-          .fromTo(
-            "[data-hero-photo]",
-            { autoAlpha: 0, clipPath: "inset(12% 12% 12% 12% round 20px)", scale: 1.04 },
-            { autoAlpha: 1, clipPath: "inset(0% 0% 0% 0% round 20px)", scale: 1, duration: 1.4, clearProps: "clipPath,scale" },
-            0,
-          )
-          .set("[data-hero-line]", { autoAlpha: 1 }, 0.3)
-          .add(writeSignature(), 0.3)
-          .fromTo(
-            "[data-hero-fade]",
-            { autoAlpha: 0, y: 14 },
-            { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08 },
-            1.3,
-          );
-
-        // Лёгкий параллакс фото внутри рамки
-        gsap.fromTo(
-          "[data-parallax]",
-          { yPercent: -4 },
-          {
-            yPercent: 4,
-            ease: "none",
-            scrollTrigger: { trigger: "[data-hero-photo]", start: "top top+=80", end: "bottom top", scrub: true },
-          },
-        );
-
-        // Формат чисел по языку страницы: 1,5 в русской версии, 1.5 в английской
-        const numberLocale = document.documentElement.lang === "en" ? "en-US" : "ru-RU";
-
-        // Счётчики в цифрах
-        gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
-          const target = Number(el.dataset.count);
-          const decimals = Number(el.dataset.decimals ?? 0);
-          const fmt = (v: number) =>
-            v.toLocaleString(numberLocale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-          const state = { v: 0 };
-          el.textContent = fmt(0);
-          gsap.to(state, {
-            v: target,
-            duration: 1.6,
-            ease: "power3.out",
-            onUpdate: () => {
-              el.textContent = fmt(state.v);
-            },
-            scrollTrigger: { trigger: el, start: "top 88%", once: true },
-          });
-        });
-
-        // «Обо мне»: слова проявляются по мере чтения
-        const words = gsap.utils.toArray<HTMLElement>("[data-word]");
-        if (words.length) {
-          gsap.fromTo(
-            words,
-            { opacity: 0.14 },
-            {
-              opacity: 1,
-              ease: "none",
-              stagger: 0.1,
-              scrollTrigger: desktop
-                ? { trigger: "[data-about]", start: "top top", end: "+=110%", scrub: 0.6, pin: true }
-                : { trigger: "[data-about]", start: "top 75%", end: "bottom 60%", scrub: 0.6 },
-            },
-          );
-        }
-
-        // Таймлайн опыта
-        gsap.fromTo(
-          "[data-timeline-progress]",
-          { scaleY: 0 },
-          {
-            scaleY: 1,
-            ease: "none",
-            scrollTrigger: { trigger: "[data-timeline]", start: "top 65%", end: "bottom 65%", scrub: 0.4 },
-          },
-        );
-
-        // Появление блоков при входе в экран
-        gsap.set("[data-reveal]", { autoAlpha: 0, y: 24 });
-        ScrollTrigger.batch("[data-reveal]", {
-          start: "top 88%",
-          once: true,
-          onEnter: (batch) =>
-            gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "expo.out", overwrite: true }),
-        });
-
-        gsap.set("[data-bento]", { autoAlpha: 0, y: 32, scale: 0.98 });
-        ScrollTrigger.batch("[data-bento]", {
-          start: "top 90%",
-          once: true,
-          onEnter: (batch) =>
-            gsap.to(batch, { autoAlpha: 1, y: 0, scale: 1, duration: 1, stagger: 0.08, ease: "expo.out", overwrite: true }),
-        });
-
-        gsap.set("[data-chip]", { autoAlpha: 0, y: 12 });
-        ScrollTrigger.batch("[data-chip]", {
-          start: "top 92%",
-          once: true,
-          onEnter: (batch) =>
-            gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.03, ease: "power2.out", overwrite: true }),
-        });
-
-        // Финальный блок контактов
-        gsap.fromTo(
-          "[data-contact]",
-          { y: 60, autoAlpha: 0 },
-          {
-            y: 0,
-            autoAlpha: 1,
-            duration: 1.1,
-            ease: "expo.out",
-            scrollTrigger: { trigger: "[data-contact]", start: "top 85%", once: true },
-          },
-        );
-
-        // Прогресс чтения: создаётся последним, чтобы учесть место под pin
-        gsap.to("[data-progress]", {
-          scaleX: 1,
+      gsap.fromTo(
+        words,
+        { opacity: 0.14 },
+        {
+          opacity: 1,
           ease: "none",
-          scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.3 },
+          stagger: 0.1,
+          scrollTrigger: desktop
+            ? // refreshPriority: pin добавляет высоту странице, поэтому считается
+              // раньше остальных триггеров, даже если создан позже них
+              { trigger: "[data-about]", start: "top top", end: "+=110%", scrub: 0.6, pin: true, refreshPriority: 1 }
+            : { trigger: "[data-about]", start: "top 75%", end: "bottom 60%", scrub: 0.6 },
+        },
+      );
+    });
+
+    mm.add(MOTION, () => {
+      // Hero: вход по порядку
+      gsap
+        .timeline({ defaults: { ease: "expo.out" } })
+        .fromTo(
+          "[data-hero-photo]",
+          { autoAlpha: 0, clipPath: "inset(12% 12% 12% 12% round 20px)", scale: 1.04 },
+          { autoAlpha: 1, clipPath: "inset(0% 0% 0% 0% round 20px)", scale: 1, duration: 1.4, clearProps: "clipPath,scale" },
+          0,
+        )
+        .set("[data-hero-line]", { autoAlpha: 1 }, 0.3)
+        .add(writeSignature(), 0.3)
+        .fromTo("[data-hero-fade]", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08 }, 1.3);
+
+      // Лёгкий параллакс фото внутри рамки
+      gsap.fromTo(
+        "[data-parallax]",
+        { yPercent: -4 },
+        {
+          yPercent: 4,
+          ease: "none",
+          scrollTrigger: { trigger: "[data-hero-photo]", start: "top top+=80", end: "bottom top", scrub: true },
+        },
+      );
+
+      // Формат чисел по языку страницы: 1,5 в русской версии, 1.5 в английской
+      const numberLocale = document.documentElement.lang === "en" ? "en-US" : "ru-RU";
+
+      // Счётчики в цифрах
+      gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
+        const target = Number(el.dataset.count);
+        const decimals = Number(el.dataset.decimals ?? 0);
+        const fmt = (v: number) =>
+          v.toLocaleString(numberLocale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        const state = { v: 0 };
+        el.textContent = fmt(0);
+        gsap.to(state, {
+          v: target,
+          duration: 1.6,
+          ease: "power3.out",
+          onUpdate: () => {
+            el.textContent = fmt(state.v);
+          },
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
         });
-      },
-    );
+      });
+
+      // Таймлайн опыта: линия растёт по прокрутке, точки закрашиваются,
+      // когда линия до них доходит
+      gsap.fromTo(
+        "[data-timeline-progress]",
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: "none",
+          scrollTrigger: { trigger: "[data-timeline]", start: "top 65%", end: "bottom 65%", scrub: 0.4 },
+        },
+      );
+      const timelineItems = gsap.utils.toArray<HTMLElement>("[data-timeline] > li");
+      timelineItems.forEach((item) => {
+        ScrollTrigger.create({
+          trigger: item,
+          start: "top 65%",
+          onEnter: () => item.classList.add("is-passed"),
+          onLeaveBack: () => item.classList.remove("is-passed"),
+        });
+      });
+
+      // Откат (reduced motion включили на лету) возвращает точки в исходный вид
+      const resetTimeline = () => timelineItems.forEach((item) => item.classList.remove("is-passed"));
+
+      // Появление блоков при входе в экран
+      const reveal = (selector: string, start: string, from: gsap.TweenVars, to: gsap.TweenVars) => {
+        gsap.set(selector, { autoAlpha: 0, ...from });
+        ScrollTrigger.batch(selector, {
+          start,
+          once: true,
+          onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, ease: "expo.out", overwrite: true, ...to }),
+        });
+      };
+      reveal("[data-reveal]", "top 88%", { y: 24 }, { y: 0, duration: 0.9, stagger: 0.08 });
+      reveal("[data-bento]", "top 90%", { y: 32, scale: 0.98 }, { y: 0, scale: 1, duration: 1, stagger: 0.08, clearProps: "transform" });
+      reveal("[data-chip]", "top 92%", { y: 12 }, { y: 0, duration: 0.5, stagger: 0.03, ease: "power2.out" });
+      reveal("[data-contact]", "top 85%", { y: 60 }, { y: 0, duration: 1.1 });
+
+      // Прогресс чтения: до самого конца страницы, с учётом места под pin
+      gsap.to("[data-progress]", {
+        scaleX: 1,
+        ease: "none",
+        scrollTrigger: { start: 0, end: "max", scrub: 0.3 },
+      });
+
+      return resetTimeline;
+    });
 
     // Шрифты меняют высоту строк, пересчитываем позиции триггеров
     document.fonts?.ready.then(() => ScrollTrigger.refresh());

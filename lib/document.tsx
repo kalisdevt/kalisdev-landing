@@ -84,12 +84,15 @@ function personJsonLd(site: SiteContent) {
   };
 }
 
+// «<» экранируем, чтобы текст контента не мог закрыть тег <script>
+const jsonForScript = (data: unknown) => JSON.stringify(data).replace(/</g, "\\u003c");
+
 export function RootDocument({ site, children }: { site: SiteContent; children: React.ReactNode }) {
   return (
-    <html lang={site.locale} className={fontVariables} suppressHydrationWarning>
+    <html lang={site.locale} className={fontVariables} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd(site)) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonForScript(personJsonLd(site)) }} />
       </head>
       <body className="min-h-[100dvh] bg-bg font-sans text-fg">
         {children}
